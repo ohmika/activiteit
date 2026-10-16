@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wat gaan wij doen?</title>
+<style>
+:root{--bg:#fff3f0;--card:#fff;--ink:#2a1216;--mut:#7a4d55;--edge:#2a1216;--g:#8be0a4;--m:#ffd166;--l:#ff8fa3;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241014;--card:#3a1c22;--ink:#ffeceb;--mut:#d4a3aa;--edge:#100507;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#241014;--card:#3a1c22;--ink:#ffeceb;--mut:#d4a3aa;--edge:#100507;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,"Segoe UI",Roboto,sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:460px;padding:28px 20px 40px}
+h1{font-size:2.1rem;line-height:1.05;margin:0 0 8px;font-weight:800}
+.sub{margin:0 0 20px;color:var(--mut);line-height:1.4}
+.b{display:grid;gap:14px}
+.b button{font:inherit;color:#2a1216;border:3px solid var(--edge);border-radius:28px 10px 28px 10px;padding:14px 20px;cursor:pointer;text-align:left;box-shadow:0 5px 0 var(--edge);transition:transform .12s,box-shadow .12s}
+.b b{display:block;font-size:1.55rem;font-weight:800}
+.b span{font-size:1rem}
+.b button:active{transform:translateY(4px);box-shadow:0 1px 0 var(--edge)}
+.b button[aria-pressed="true"]{outline:4px solid var(--ink);outline-offset:3px}
+button:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+#out{margin-top:26px}
+.idea{background:var(--card);border:3px solid var(--edge);border-radius:10px 36px 10px 36px;padding:24px 20px 20px;text-align:center;box-shadow:0 5px 0 var(--edge);animation:pop .3s ease-out}
+.chip{display:inline-block;padding:2px 14px;border:2px solid var(--edge);border-radius:20px;font-weight:700;color:#2a1216}
+.big{font-size:4.2rem;line-height:1;margin-top:10px}
+h2{margin:8px 0 16px;font-size:1.7rem;line-height:1.15}
+.again{font:inherit;font-weight:700;color:var(--ink);background:transparent;border:3px solid var(--ink);border-radius:30px;padding:8px 22px;cursor:pointer}
+.note{margin-top:22px;font-size:.85rem;color:var(--mut);line-height:1.4}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.idea{animation:none}.b button{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Wat gaan wij doen?</h1>
+<p class="sub">Kies je budget per persoon en krijg een idee voor jullie twee, in Oss en omgeving.</p>
+<div class="b" role="group" aria-label="Budget">
+<button data-k="g" style="background:var(--g)" aria-pressed="false"><b>Gratis</b><span>€0 per persoon</span></button>
+<button data-k="m" style="background:var(--m)" aria-pressed="false"><b>€10 pp</b><span>Tot €10 per persoon</span></button>
+<button data-k="l" style="background:var(--l)" aria-pressed="false"><b>€20 pp</b><span>Tot €20 per persoon</span></button>
+</div>
+<div id="out" aria-live="polite"></div>
+<p class="note">Prijzen zijn een indicatie. Check vooraf even de openingstijden en actuele prijzen.</p>
+</main>
+<script>
+const S=s=>s.trim().split("\n");
+const D={g:S(`
+🥾 Wandelen in de Maashorst
+🐴 Wilde paarden spotten in de Maashorst
+🦌 Wisenten zoeken in de Maashorst
+🌅 Zonsondergang kijken bij de Maasdijk
+🦆 Vogels kijken langs de Maas
+🦢 Zwanen kijken bij een vijver
+🍂 Een kunstwerk maken van herfstbladeren
+🔭 Sterren kijken op een donkere plek
+🧺 Picknicken in het park
+🐿️ Eekhoorns zoeken in het bos
+🍄 Paddenstoelen fotograferen
+🌸 Bloemen fotograferen langs de dijk
+🐄 Koeien kijken in de uiterwaarden
+🪁 Een vlieger oplaten op een open veld
+🏃 Hardlopen door het bos
+🌾 Dwalen door het Herperduin
+🐸 Kikkers zoeken bij een poel
+🦋 Vlinders tellen
+🌳 Een boom elke maand fotograferen
+🏞️ Struinen langs de Maas bij Megen
+🏙️ Struinen door het centrum van Oss
+🎨 Straatkunst zoeken in Oss
+🏛️ Mooie gebouwen in het centrum fotograferen
+🛍️ Window-shoppen in de winkelstraten
+🌉 Een stadswandeling met een zelfgemaakte speurtocht
+🗿 Beelden en kunst in de openbare ruimte zoeken
+📚 Boeken lezen in de bibliotheek
+🎶 Luisteren naar straatmuzikanten
+🎪 Een gratis markt of festival bezoeken
+🏘️ Een nieuwe wijk verkennen te voet
+🏰 Ravenstein verkennen
+🌊 Megen bekijken
+🌷 Een rondje wandelen door Berghem
+🏡 Een rondje door Heesch
+🚗 Naar Nistelrode rijden en rondkijken
+🐓 Een rondje door Schaijk
+🌿 Herpen verkennen
+🏘️ Geffen verkennen
+🍃 Lithoijen verkennen
+🌻 Macharen verkennen
+🎲 Een spelletjesavond thuis
+🎬 Filmavond met zelfgemaakte popcorn
+🖌️ Schilderen met materialen uit huis
+🧩 Een grote puzzel leggen
+🧱 Een kussenburcht bouwen
+🎤 Karaoke in de woonkamer
+📖 Elkaar voorlezen
+🧘 Yoga in de tuin
+🍪 Koekjes bakken met wat je in huis hebt
+🕯️ Een avond zonder scherm
+⚽ Voetballen in het park
+🏀 Basketballen op een openbaar veld
+🛹 Skaten bij een skatepark
+🛼 Skeeleren door de wijk
+🏓 Tafeltennissen bij een openbare tafel
+🎯 Een speurtocht in de buurt maken
+🏸 Badmintonnen op het gras
+🎾 Een balletje slaan op een openbaar veld
+🛴 Steppen door de stad
+🏛️ Open Monumentendag bezoeken
+🎭 Een open podium bekijken
+📸 Een fotowandeling maken
+✏️ Een stadsgids tekenen
+🗺️ Een geocaching-ronde lopen
+🐶 Een hond uitlaten voor een buurman
+💬 Een buurtgenoot leren kennen
+🧹 Zwerfafval opruimen in je wijk
+🌱 Een boom of plant planten
+🎁 Spullen weggeven via een buurtgroep
+⛄ Een sneeuwpop bouwen als het sneeuwt
+🎃 Pompoenen kijken in de herfst
+🎄 Kerstverlichting bekijken in het centrum
+🌷 Bloeiende fruitbomen kijken in het voorjaar
+☀️ Ontbijten bij zonsopkomst
+🍁 Door de herfstbladeren schoppen
+❄️ Rijp en mist fotograferen
+🌈 Een regenboog zoeken na de bui
+🌧️ Een regenwandeling met paraplu
+🌻 Zonnebloemen zoeken
+✍️ Een dagboek of verhaal schrijven
+🎵 Een liedje schrijven
+🪡 Iets repareren in plaats van weggooien
+🧶 Iets knutselen van afval
+🪴 Stekjes maken van planten
+🎞️ Een korte film opnemen met je telefoon
+📝 Een brief schrijven aan jezelf over een jaar
+🖼️ Een fotocollage maken
+🎭 Een toneelstukje bedenken
+🧠 Een quiz maken voor vrienden
+🚌 Met de bus naar een onbekend dorp
+🗺️ Een nieuwe wandelroute uitstippelen
+🐝 Bijen en hommels spotten
+🪺 Vogels bekijken met een kijker
+🏞️ Wandelen op een knooppuntenroute
+🍵 Thee drinken en kletsen met een vriend
+🪞 Op dezelfde plek een foto maken, elk seizoen
+🌠 Wensen doen bij een vallende ster
+🐾 Dierensporen zoeken in de modder
+💑 Een date-wandeling bij zonsondergang
+🌙 Samen een nachtwandeling maken
+💌 Elkaar een brief schrijven
+🎬 Een filmavond met een laken als scherm
+🛋️ Een luie dag in pyjama
+🍳 Samen ontbijt maken en op bed eten
+❓ De 36 vragen om dichter bij elkaar te komen stellen
+🎧 Samen een afspeellijst maken
+📷 Een fotoalbum van jullie samen maken
+🗓️ Een bucketlist voor dit jaar maken
+🏠 Jullie droomhuis tekenen
+🌍 Een droomreis plannen
+🔮 Elkaar vertellen over vroeger met oude foto's
+🧘 Samen mediteren
+💆 Elkaar een massage geven
+🛁 Een badavond met kaarsen
+🍪 Samen een nieuw recept uitproberen
+🎲 Een kaartspel met een inzet, zoals afwassen
+🏆 Een minigolfbaan maken met huisspullen
+🎨 Elkaar tekenen
+🧑‍🤝‍🧑 Vrienden uitnodigen voor een spelletjesavond
+🔥 Een gezellige avond met kaarsen en dekens
+🌌 Naar de sterren kijken onder een deken
+🚶 Een verrassingswandeling waarbij de ander de route kiest
+🏞️ Een nieuw stuk van de Maashorst ontdekken
+📆 Een vaste datenight plannen
+🌤️ Een ochtendwandeling vóór het ontbijt
+🕊️ Een dag zonder telefoon
+`),
+m:S(`
+🍦 Een ijsje eten in het centrum
+🥞 Pannenkoeken eten
+🍕 Pizza delen bij een pizzeria
+🍜 Noedels eten bij een Aziaat
+☕ Koffie met gebak
+🍟 Friet met een snack
+🧇 Wafels met slagroom
+🥐 Brunchen bij een bakker
+🍩 Donuts proeven
+🥙 Shoarma of kebab eten
+🏊 Zwemmen in het Golfbad
+🎳 Bowlen
+🎱 Poolen
+🎯 Darten in een café
+🧗 Klimmen in een klimhal
+🥏 Discgolf spelen
+⛳ Midgetgolf spelen
+🎮 Een uurtje arcade
+🏸 Een uurtje badminton in een sporthal
+🧘 Een yogales volgen
+🎠 Naar de kermis
+🎨 Een creatief atelier bezoeken
+🧁 Cupcakes versieren
+🪁 Een vlieger kopen en oplaten
+📖 Een nieuw boek kopen en samen lezen
+🐠 Naar een tuincentrum met dieren kijken
+🛍️ Vintage winkelen in een kringloop
+🖼️ Museum Jan Cunen bezoeken
+🎬 Een film in de bioscoop op een kortingsdag
+🎭 Een voorstelling bij een lokaal theater
+📚 Een boekenmarkt doorzoeken
+🎵 Een optreden in een café
+🏺 Een rondleiding door het centrum
+🧵 Een workshop bij een buurthuis
+📷 Een fototentoonstelling bekijken
+🎤 Een open mic-avond bezoeken
+🎻 Een gratis of goedkoop concert in een kerk
+🍝 Samen koken met €10 aan boodschappen
+🎲 Een nieuw bordspel kopen
+🍿 Filmavond met snacks
+🎞️ Een film huren
+🏆 Een bakwedstrijd houden
+🥗 Een potluck-diner organiseren
+🥤 Zelf milkshakes maken
+🌮 Een tacoavond houden
+🍢 Spiesjes grillen
+🍫 Chocolade proeven bij een chocolatier
+🌷 Een bloemetje kopen voor een ander
+🍺 Een drankje op een terras
+🍨 Een ijscoupe op het terras
+🧃 Een versgeperst sapje
+🍓 Fruit plukken bij een boerderij
+🥕 Naar een boerderijwinkel
+🏪 Een weekmarkt bezoeken
+🥖 Lokale producten proeven
+🧀 Kaas proeven bij een kaasboer
+🖨️ Foto's laten afdrukken
+🛒 Een nieuwe plant kopen
+🪴 Een plant verpotten in een mooie pot
+🕯️ Een kaars gieten
+🖍️ Een kleurboek en stiften kopen
+🧩 Een nieuwe puzzel kopen
+🧼 Samen de auto wassen en daarna iets lekkers halen
+🛴 Een stepverhuur proberen
+🪁 Een vliegerworkshop
+🏹 Een uurtje boogschieten
+🥧 Appeltaart eten bij een bakker
+🍔 Een broodje hamburger eten
+🥪 Een verse lunch bij een lunchroom
+🍡 Een poffertjeskraam bezoeken
+🥨 Een zachte pretzel proeven
+🍯 Een bezoek aan een imker
+🍎 Appels kopen bij een fruitteler
+🥔 Aardappels halen bij een boer
+🛒 Een diner koken van €10 aan boodschappen
+🧴 Zelf zeep maken
+🖌️ Een schilderij kopen op een kunstmarkt
+📻 Platen snuffelen bij een platenzaak
+🧶 Wol kopen en iets breien
+🪑 Een kringloopwinkel-challenge
+🎈 Ballonnen versieren voor een feestje
+🎂 Een verjaardagstaart bakken
+🍬 Snoep kopen bij een snoepwinkel
+🚌 Met de bus naar Den Bosch
+🚆 Met de trein een stationsstadje bezoeken
+🧭 Een puzzeltocht printen
+🔍 Een speurtocht door de wijk printen
+🕹️ Een uurtje flipperen
+🛁 Een luxe badavond thuis
+🧖 Een gezichtsmasker-avond
+💅 Elkaars nagels lakken
+🧁 Een high tea thuis
+🥂 Een mocktailavond
+📺 Een serie-marathon met snacks
+🎧 Een nieuwe podcast ontdekken met een snack
+☕ Een koffiedate in een gezellig café
+🍷 Een glas wijn op een terras
+🍻 Een biertje in een kroeg in Oss
+🎳 Een bowlingdate
+🎱 Een potje pool met een drankje
+🍕 Een pizza halen en thuis opeten
+🍣 Een afhaalsushi-avond
+🍔 Een burgerdate
+🍟 Friet halen en opeten bij de Maas
+🧋 Bubble tea halen en wandelen
+🍦 Een ijsje en een wandeling door het centrum
+🎬 Een bioscoopdate met korting
+🎶 Een avond naar een café met livemuziek
+🎤 Een karaokeavond
+🕹️ Een avond arcade en flippers
+🎯 Een dartsdate
+🏐 Samen een sportles uitproberen
+🥾 Een wandeling met koffie to go
+🍫 Bonbons kopen om samen te proeven
+🌹 Een bloemetje kopen voor elkaar
+🎁 Een klein cadeautje voor elkaar kopen
+🧁 Een bakkerij proberen en een gebakje delen
+🍿 Een filmavond met alles erop en eraan
+📚 Een boek voor elkaar uitzoeken in een boekwinkel
+🎨 Een goedkope schilderset kopen en samen schilderen
+🧩 Een nieuwe puzzel uitzoeken
+🎮 Een nieuw spel kopen voor jullie tweeën
+🍳 Een brunch thuis voor twee
+🌮 Een tacoavond voor twee
+🥘 Een gerecht uit een andere keuken koken
+`),
+l:S(`
+⛷️ Skiën bij Alpine World Oss
+🏰 GeoFort bezoeken
+🎢 Een dag naar Avonturenpark De Bergen
+🧗 Een klimbos met z'n tweeën
+🔐 Een escape room spelen
+🔫 Lasergamen
+🏎️ Karten
+🎯 Paintballen
+🤸 Trampolinepark
+🍿 Naar Kinepolis met popcorn
+🍽️ Uit eten bij een restaurant
+🍣 Sushi eten
+🥘 Tapas delen
+🫖 High tea
+🍔 Burgers eten bij een goede burgertent
+🥩 Steak eten
+🥞 Uitgebreid brunchen
+🍝 Italiaans eten
+🍛 Indisch eten
+🍲 Chinees-Indisch eten
+🏺 Een pottenbakworkshop
+🎨 Een schilderworkshop
+👩‍🍳 Een kookworkshop
+🍺 Een bierproeverij
+🕯️ Een kaarsenworkshop
+🧖 Een middag naar de sauna
+🏊 Zwemmen en daarna een hapje eten
+🎭 Een voorstelling in het theater
+🎤 Een concert bezoeken
+🎻 Een klassiek concert
+😂 Een cabaretavond
+🖼️ Een museum in Den Bosch bezoeken
+🚆 Met de trein naar Den Bosch
+🏙️ Een dagje Nijmegen
+🛍️ Shoppen in Den Bosch
+🚤 Een rondvaart in Den Bosch
+🦁 Een dagje dierentuin
+🐘 Een bezoek aan een safaripark
+🎡 Een dagje pretpark
+🏄 Een wakeboardsessie
+🎣 Een dag vissen met een vergunning
+🛶 Kanovaren op de Maas
+🚗 Een mooie autorit met een picknick
+🏇 Een paardrijles
+🎳 Bowlen met eten erbij
+🎱 Een avondje poolen met snacks
+🍕 Een pizza-avond bij een restaurant
+🍷 Een wijnproeverij
+🧀 Een kaasplank en drankjes
+🍫 Een chocoladeworkshop
+🧁 Een taartworkshop
+🪵 Een houtbewerkingsworkshop
+💐 Bloemschikken
+🧵 Een naaiworkshop
+📸 Een fotoshoot
+💈 Een bezoek aan de kapper
+💆 Een massage
+🧼 Een wellness-middag
+🍳 Een ontbijt in een mooi café
+🥂 Cocktails drinken
+🎊 Een dansavond
+🕺 Een danscursus
+🎶 Een festival bezoeken
+⚽ Een wedstrijd van TOP Oss bekijken
+🏒 Een sportwedstrijd in de regio
+🏐 Een sporthal huren met vrienden
+🎾 Een tennisbaan huren
+🥋 Een proefles vechtsport
+🧗 Een proefles klimmen
+🏹 Boogschieten
+🎯 Een dartstoernooi
+🎮 Een gamingavond in een hal
+🕹️ Virtual reality spelen
+🎬 Een dubbele film
+📚 Een boekwinkel en een koffie
+🛋️ Een bioscoop met loungestoelen
+🧑‍🎨 Een tekenworkshop
+🪘 Een muziekworkshop
+🎼 Een koorzangdag
+🥁 Een drumworkshop
+🧘 Een yogaweekend
+🎪 Een circusvoorstelling
+🛳️ Een boottocht op de Maas
+🧪 Een museum met doe-activiteiten
+🏛️ Een dagje Nijmegen met museum en lunch
+🌳 Een natuurgids-excursie in de Maashorst
+🦉 Een uilenwandeling met gids
+🌌 Een sterrenwacht bezoeken
+🥾 Een begeleide wandeling met lunch
+🍰 Gebak en koffie in een tuincentrum-café
+🍕 Een pizzaworkshop
+🥖 Een broodbakworkshop
+🍻 Een rondleiding bij een brouwerij
+🧴 Een parfumworkshop
+🎸 Een gitaarles
+🎹 Een proefles piano
+🪩 Een avond uit dansen
+🎳 Een bowlingtoernooi met pizza
+🍽️ Een romantisch etentje
+🥂 Cocktails met een hapje
+🍣 Een sushiavond
+🍷 Een wijnproeverij voor twee
+🍫 Een chocoladeproeverij
+🎳 Bowlen met eten erna
+🎢 Een dagje pretpark
+🧗 Boulderen met een drankje erna
+🎬 Een bioscoopdate met popcorn en drinken
+🏺 Een pottenbakdate
+🎨 Een schilderdate met een drankje
+🍳 Een kookworkshop voor twee
+🧖 Een sauna- of wellnessmiddag
+🌃 Een avond Den Bosch met eten en een wandeling
+🛶 Een kanodate
+🚤 Een rondvaart
+🏔️ Een dagje indoor skiën
+🔐 Een escape room voor twee
+🤸 Een trampolinepark-date
+🔫 Lasergamen met z'n tweeën
+🏎️ Een kartdate
+🎭 Een voorstelling bij een lokaal theater
+🎶 Een concert of festival
+😂 Een cabaretavond
+🍰 Een high tea voor twee
+🥩 Een steakdate
+🍝 Een Italiaanse avond met pasta en tiramisu
+🍜 Een ramenavond
+🌅 Een dagje Nijmegen aan de Waal met lunch
+`),
+};
+const PG=["de Maashorst","de Maasdijk","Oss","Megen","Ravenstein","Berghem","Heesch","Herpen","Geffen","Nistelrode","Schaijk","Lithoijen","Macharen","Uden","Veghel","Den Bosch","Nijmegen","Grave","Cuijk","Boxmeer"];
+const PT=["Oss","Megen","Ravenstein","Berghem","Heesch","Herpen","Geffen","Nistelrode","Schaijk","Lithoijen","Macharen","Uden","Veghel","Den Bosch","Nijmegen","Grave","Cuijk","Boxmeer","Reek","Zeeland"];
+const TG=["🥾 Wandelen door §","🚗 Samen een ritje maken naar §","📸 Een fotowandeling door §","🧺 Picknicken in of bij §","🌅 De zonsondergang kijken bij §","💑 Een date-wandeling in §","🏃 Samen hardlopen in of bij §","🎒 Een spontane dagtrip naar §","🗺️ Een speurtocht voor elkaar maken in §","☕ Een thermoskan koffie meenemen naar §"];
+const TM=["🍦 Een ijsje eten in §","☕ Koffie en gebak in §","🍺 Een drankje op een terras in §","🥐 Een broodje of tosti halen in §","🍕 Een pizza delen in §","🥞 Pannenkoeken of wafels eten in of bij §","🛍️ Rondstruinen in § en iets kleins kopen","🍟 Een snack halen in §","🧋 Iets lekkers drinken in §","🎬 Een date in § met een snack en een wandeling"];
+const TL=["🍽️ Een etentje voor twee in §","🥂 Cocktails en een hapje in §","🍝 Een Italiaans diner in §","🍣 Sushi eten in §","🍔 Een burgerdate in §","🍷 Een proeverij met drankjes in §","🎭 Een avond uit in §","🛍️ Een shopmiddag in § met lunch","🍰 High tea of lunch in §","🎳 Een activiteit met eten erna in §"];
+const N=(w,p,t)=>{const s=new Set(D[w]);o:for(const x of p)for(const y of t){if(s.size>=300)break o;s.add(y.replace("§",x))}D[w]=[...s]};
+N("g",PG,TG);N("m",PT,TM);N("l",PT,TL);
+const L={g:"Gratis",m:"€10 pp",l:"€20 pp"},C={g:"var(--g)",m:"var(--m)",l:"var(--l)"};
+const bag={};let last=null,k=null;
+function draw(){
+  if(!bag[k]||!bag[k].length){
+    const a=D[k].slice();
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+    if(last&&a[a.length-1]===last)[a[0],a[a.length-1]]=[a[a.length-1],a[0]];
+    bag[k]=a;
+  }
+  return last=bag[k].pop();
+}
+const out=document.getElementById("out"),btns=[...document.querySelectorAll(".b button")];
+function show(){
+  const t=draw(),i=t.indexOf(" ");
+  btns.forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===k));
+  out.innerHTML='<div class="idea"><span class="chip" style="background:'+C[k]+'">'+L[k]+'</span><div class="big"></div><h2></h2><button class="again" type="button">Nog een idee</button></div>';
+  out.querySelector(".big").textContent=t.slice(0,i);
+  out.querySelector("h2").textContent=t.slice(i+1);
+  out.querySelector(".again").onclick=show;
+  out.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+btns.forEach(b=>b.onclick=()=>{k=b.dataset.k;show()});
+</script>
+</body>
+</html>
