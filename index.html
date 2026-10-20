@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wat gaan wij doen?</title>
+<style>
+:root{--bg:#fff3f0;--card:#fff;--ink:#2a1216;--mut:#7a4d55;--edge:#2a1216;--g:#8be0a4;--m:#ffd166;--l:#ff8fa3;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241014;--card:#3a1c22;--ink:#ffeceb;--mut:#d4a3aa;--edge:#100507;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#241014;--card:#3a1c22;--ink:#ffeceb;--mut:#d4a3aa;--edge:#100507;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,"Segoe UI",Roboto,sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:460px;padding:28px 20px 40px}
+h1{font-size:2.1rem;line-height:1.05;margin:0 0 8px;font-weight:800}
+.sub{margin:0 0 20px;color:var(--mut);line-height:1.4}
+.b{display:grid;gap:14px}
+.b button{font:inherit;color:#2a1216;border:3px solid var(--edge);border-radius:28px 10px 28px 10px;padding:14px 20px;cursor:pointer;text-align:left;box-shadow:0 5px 0 var(--edge);transition:transform .12s,box-shadow .12s}
+.b b{display:block;font-size:1.55rem;font-weight:800}
+.b span{font-size:1rem}
+.b button:active{transform:translateY(4px);box-shadow:0 1px 0 var(--edge)}
+.b button[aria-pressed="true"]{outline:4px solid var(--ink);outline-offset:3px}
+button:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+#out{margin-top:26px}
+.idea{background:var(--card);border:3px solid var(--edge);border-radius:10px 36px 10px 36px;padding:24px 20px 20px;text-align:center;box-shadow:0 5px 0 var(--edge);animation:pop .3s ease-out}
+.chip{display:inline-block;padding:2px 14px;border:2px solid var(--edge);border-radius:20px;font-weight:700;color:#2a1216}
+.big{font-size:4.2rem;line-height:1;margin-top:10px}
+h2{margin:8px 0 16px;font-size:1.7rem;line-height:1.15}
+.again{font:inherit;font-weight:700;color:var(--ink);background:transparent;border:3px solid var(--ink);border-radius:30px;padding:8px 22px;cursor:pointer}
+.note{margin-top:22px;font-size:.85rem;color:var(--mut);line-height:1.4}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.idea{animation:none}.b button{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Wat gaan wij doen?</h1>
+<p class="sub">Kies je budget per persoon en krijg een idee voor jullie twee, in Oss en omgeving.</p>
+<div class="b" role="group" aria-label="Budget">
+<button data-k="g" style="background:var(--g)" aria-pressed="false"><b>Gratis</b><span>€0 per persoon</span></button>
+<button data-k="m" style="background:var(--m)" aria-pressed="false"><b>€10 pp</b><span>Tot €10 per persoon</span></button>
+<button data-k="l" style="background:var(--l)" aria-pressed="false"><b>€20 pp</b><span>Tot €20 per persoon</span></button>
+</div>
+<div id="out" aria-live="polite"></div>
+<p class="note">Prijzen zijn een indicatie. Check vooraf even de openingstijden en actuele prijzen.</p>
+</main>
+<script>
+const TARGET=2400;
+// X: fill one "§" slot per value. Y: fill "§" and "¶" with every pair of values.
+const X=(t,l)=>l.split("|").map(v=>t.replace("§",v));
+const Y=(t,a,b)=>a.split("|").flatMap(x=>b.split("|").map(y=>t.replace("§",x).replace("¶",y)));
+const P=s=>s.split("|");
+// Build a list of exactly TARGET ideas: curated ideas first, then an even spread of generated ones.
+// Duplicates are detected on text only (emoji, case and punctuation are ignored).
+const build=(core,fill)=>{
+  const seen=new Set(),out=[];
+  const add=s=>{const k=s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,"");if(!seen.has(k)){seen.add(k);out.push(s)}};
+  core.forEach(add);
+  const need=TARGET-out.length,step=fill.length/need;
+  for(let i=0;i<need;i++)add(fill[Math.floor(i*step)]);
+  for(const f of fill){if(out.length>=TARGET)break;add(f)}
+  return out;
+};
+
+const V="Oss|Berghem|Heesch|Nistelrode|Schaijk|Geffen|Nuland|Vinkel|Herpen|Haren|Reek|Zeeland|Megen|Macharen|Oijen|Teeffelen|Lithoijen|Demen|Dieden|Ravenstein|Neerloon|Overlangel|Appeltern|Grave|Escharen|Uden|Volkel|Veghel|Odiliapeel|Den Bosch|Nijmegen|Cuijk|Boxmeer|Wijchen|Maasbommel|Schijndel|Heeswijk-Dinther|Mill|Loosbroek|Vorstenbosch|Rosmalen|Berlicum|Middelrode|Heeswijk|Keldonk|Zijtaart|Eerde|Erp|Boekel|Gemert|Sint-Oedenrode|Lith|Maren-Kessel|Oeffelt|Beers|Sambeek|Overloon|Sint Anthonis|Wanroij";
+const NAT="de Maashorst (Berghem)|de Maashorst (Schaijk)|de Maashorst (Nistelrode)|de Maashorst (Zeeland)|de Maashorst (Herpen)|de Maashorst (Uden)|het Herperduin|de Maasdijk bij Megen|de Maasdijk bij Oijen|de uiterwaarden bij Ravenstein|de uiterwaarden bij Grave|de Maas bij Lithoijen|Natuurgebied Slabroek|de Maashorst (Volkel)|de Maashorst (Vinkel)|de Maashorst (Heesch)|de Maashorst (Oss)|de Maasdijk bij Macharen|de Maasdijk bij Ravenstein|de Maasdijk bij Grave|de Maasdijk bij Lithoijen|de uiterwaarden bij Megen|de uiterwaarden bij Lith|de uiterwaarden bij Cuijk|de Maas bij Ravenstein|de Maas bij Grave|de Maas bij Megen|de Maas bij Macharen";
+const TOWN="Oss|Berghem|Heesch|Nistelrode|Schaijk|Geffen|Nuland|Herpen|Megen|Ravenstein|Grave|Cuijk|Boxmeer|Uden|Volkel|Veghel|Den Bosch|Nijmegen|Wijchen|Schijndel|Heeswijk-Dinther|Mill|Rosmalen|Berlicum|Boekel|Gemert|Sint-Oedenrode|Lith|Sint Anthonis|Overloon|Erp";
+const CITY="Oss|Den Bosch|Nijmegen|Eindhoven|Tilburg|Arnhem|Utrecht|Breda|Helmond|Uden|Veghel";
+const BIGC="Den Bosch|Nijmegen|Eindhoven|Tilburg|Arnhem|Utrecht|Breda";
+
+// ---- Free ----
+const TG=P("🥾 Wandelen door §|📸 Een fotowandeling door §|🌅 Zonsondergang kijken bij §|🧺 Picknicken bij §|🏃 Samen hardlopen door §|🗺️ Een speurtocht voor elkaar maken in §|☕ Een thermoskan koffie meenemen naar §|💑 Een date-wandeling door §|🌠 Sterren kijken bij §|🍂 Herfstbladeren verzamelen bij §|🎨 Tekenen op een bankje bij §|🪁 Een vlieger oplaten bij §|🚶 Een verrassingsroute lopen door §|🎧 Een podcast luisteren tijdens een wandeling door §|🧤 Zwerfafval opruimen bij §|🦆 Vogels spotten bij §|🌳 De mooiste boom zoeken bij §|🪑 Even stil zijn op een bankje bij §|🤳 Een foto van jullie samen maken bij §|🌼 Wilde bloemen zoeken bij §|🥾 Een nieuwe route verkennen bij §|🐿️ Dieren spotten bij §|🍄 Paddenstoelen fotograferen bij §|🧑‍🎨 Een schets maken van iets moois bij §|🌇 Het blauwe uur fotograferen bij §|🏞️ Een rustplek zoeken bij §|🔭 Een kijker meenemen naar §|🧣 Een winterwandeling doen bij §|🌞 Een zomeravondwandeling doen bij §|🌧️ Een regenwandeling met paraplu doen bij §|🎙️ Een voice-memo met jullie indrukken opnemen bij §|🥪 Zelfgemaakte boterhammen opeten bij §");
+const fillG=TG.flatMap(t=>X(t,V+"|"+NAT));
+const coreG=[
+  ...P("🐴 Wilde paarden spotten in de Maashorst|🦌 Wisenten zoeken in de Maashorst|🎪 Een gratis markt of festival bezoeken|🏛️ Open Monumentendag bezoeken|🎄 Kerstverlichting bekijken in het centrum van Oss|⛄ Een sneeuwpop bouwen als het sneeuwt|🌈 Een regenboog zoeken na de bui|🌷 Bloeiende fruitbomen kijken in het voorjaar|🎃 Pompoenen kijken in de herfst|☀️ Ontbijten bij zonsopkomst|🎨 Straatkunst zoeken in Oss|🗺️ Een geocaching-ronde lopen|📚 Boeken lezen in de bibliotheek|🐶 Een hond uitlaten voor een buurman|🌱 Een boom of plant planten|🎶 Luisteren naar straatmuzikanten|🧹 Zwerfafval opruimen in je wijk"),
+  ...X("🎲 Thuis spelen: §","pesten|Uno|dammen|schaken|Triominos|Yahtzee|Memory|Pictionary|Wie is het?|Mens erger je niet|Galgje|Wie ben ik?|Scrabble|Blokus|Jenga|Monopoly|Rummikub|Ganzenbord|Kwartetten|Mastermind|Vier op een rij|Stoelendans|Bingo|Sjoelen|Domino|Klaverjassen|Hoger-lager|Stad-land-rivier|Verstoppertje|Twister|Boter-kaas-en-eieren|Levend Cluedo|Een kaartenhuis bouwen|Dobbelen om de afwas"),
+  ...X("🍳 Samen koken met wat je in huis hebt: §","omelet|pasta aglio e olio|tosti's|pannenkoeken|rijst met ei|groentesoep|wraps|gebakken rijst|bruschetta|ovenfriet met dip|couscoussalade|macaroni met kaas|pizza op een wrap|gevulde paprika|roerei op toast|pasta met tomatensaus|aardappelgratin|groentecurry|frittata|boerenomelet|linzensoep|een ovenschotel van restjes|noedelsoep|hummus met groente|gevulde champignons|rijstpap|pasta met pesto|naanbrood met kaas"),
+  ...X("🎬 Filmavond thuis met §","een romantische film|een grappige film|een spannende film|een animatiefilm|een klassieker|een buitenlandse film|een oude favoriet|een fantasyfilm|een sciencefictionfilm|een musical|een waargebeurde film|een kerstfilm|een jeugdfilm|een documentaire|een filmmarathon van één regisseur"),
+  ...X("✏️ Samen tekenen: §","elkaars portret|jullie droomhuis|een kaart van Oss|een stripverhaal|jullie favoriete dier|een monster uit je fantasie|een stripfiguur van jezelf|een voorwerp uit de kamer|je favoriete plek|een logo voor jullie tweeën|een kerstkaart|een kaart van jullie droomreis|een gebouw uit Oss|het uitzicht uit het raam|elkaars handen|een zelfverzonnen dier|een tattoo-ontwerp voor elkaar|je droomtuin|een poster voor jullie favoriete film|een familiewapen voor jullie tweeën"),
+  ...X("🎵 Een playlist maken voor §","een roadtrip|het ontbijt|een regenachtige dag|een feestje|het koken|het opruimen|het slapengaan|een zomeravond|dansen in de keuken|een wandeling|een date-avond|nostalgie|een verjaardag|een lange autorit|ontspannen|het sporten|de herfst|de winter"),
+  ...X("❓ Elkaar vragen stellen over §","je jeugd|je dromen|je mooiste herinneringen|eten|reizen|school|vriendschap|werk|de toekomst|dieren|vakanties|familie|talenten|films|gewoontes|je eerste keer ergens|wat je met een miljoen zou doen|geheime wensen|je favoriete plekken|gekke angsten"),
+  ...X("📝 Een lijst maken met §","50 dingen die jullie nog willen doen|plekken in Nederland die jullie willen zien|films om samen te kijken|recepten om uit te proberen|wensen voor dit jaar|dingen waar jullie dankbaar voor zijn|dagtripjes|boeken om te lezen|liedjes die jullie samen horen|mooiste herinneringen van dit jaar|doelen voor over vijf jaar|dingen die jullie nog nooit gedaan hebben|favoriete eetplekken|namen voor een toekomstig huisdier|spelletjes om uit te proberen"),
+  ...X("🧘 Samen sporten: §","yoga|planken|een squat-challenge|dansen op muziek|stretchen|Pilates|10 minuten HIIT|touwtjespringen|een buikspierroutine|trap-oefeningen|een wandeling met intervallen|krachtoefeningen met waterflessen|een dansles op YouTube|een balansuitdaging|armoefeningen met boeken|een stoel-workout|yoga voor het slapengaan|een wandelwedstrijd|een rondje joggen|mediteren"),
+  ...X("🧹 Samen opruimen: §","een kast|een la|de koelkast|de boekenplank|de foto's op je telefoon|je inbox|de schoenen|de keukenkastjes|het balkon|de tuin|de badkamer|de hal|een doos met oude spullen|je bureau|de plantenhoek|je kleding voor de kringloop|de berging"),
+  ...X("🪴 Een stekje maken van §","een pothos|een tradescantia|een vetplant|basilicum|munt|een spinnenplant|een monstera|rozemarijn|een geranium|een klimop|een aardbeienplant|een kruidenplant"),
+  ...X("✍️ Schrijven: §","een brief aan elkaar|een gedicht over Oss|een verhaal van precies 100 woorden|een brief aan jezelf over een jaar|een dagboekpagina|een ansichtkaart voor een vriend|een reisverslag van een wandeling|een liefdesbrief|een kort verhaal over een dier|een recensie van je favoriete boek|een lied|een toespraak voor niemand|een sprookje|een lijst met dankbare dingen|een verhaal met drie willekeurige woorden"),
+  ...X("⏱️ Een uur lang §","zonder telefoon|alleen fluisteren|bij kaarslicht|alleen gebaren gebruiken|in stilte wandelen|alleen vragen stellen|zonder licht|alleen complimenten geven|alleen in rijm praten|in een verzonnen taal praten|niets plannen|op de vloer zitten|alleen buiten zijn|alleen lezen"),
+  ...Y("🎲 Een potje §: ¶","pesten|Uno|dammen|schaken|Yahtzee|Memory|Pictionary|Rummikub|Scrabble|Jenga|Kwartetten|Mastermind|Vier op een rij|Boter-kaas-en-eieren|Klaverjassen|Sjoelen|Domino|Twister|Galgje|Mens erger je niet","de winnaar kiest de film|de verliezer doet de afwas|de winnaar kiest het avondeten|de verliezer maakt thee|de winnaar krijgt een massage|de verliezer geeft een compliment|de winnaar bepaalt de playlist|de verliezer zingt een liedje|de winnaar mag uitslapen|de verliezer ruimt op|de winnaar kiest de volgende date|de verliezer vertelt een geheim"),
+  ...Y("§: ¶","✏️ Tekenen met potlood|🖍️ Tekenen met kleurpotloden|🖊️ Tekenen met een pen|🖌️ Schilderen met waterverf|📰 Een collage plakken|✂️ Knippen en plakken|🪨 Tekenen op een steen|🖍️ Krijten op de stoep","elkaars portret|jullie droomhuis|je favoriete dier|een monster uit je fantasie|het uitzicht uit het raam|een voorwerp uit de keuken|jullie favoriete film|een droomtuin|een kaart van Oss|een zelfverzonnen stad|een strip over jullie dag|een zelfverzonnen dier|een kerstkaart|je favoriete plek|jullie eerste date|een toekomstig huisje|een portret van een huisdier|een landschap uit je hoofd|een bloem|een zelfportret"),
+  ...Y("🧠 Een quiz over § voor ¶ maken","Nederland|Oss|films|muziek|eten|dieren|de jaren 90|sport|aardrijkskunde|geschiedenis|wetenschap|jullie eerste jaar samen|reizen|boeken|tv-series|planten|de ruimte|het weer|talen|kleuren","jullie tweeën|vrienden|je ouders|je buren|collega's|je familie")
+];
+
+// ---- Up to 10 euro ----
+const TMT=P("🍦 Een ijsje eten in §|☕ Koffie met gebak in §|🍺 Een drankje op een terras in §|🥐 Een broodje halen bij een bakker in §|🍕 Een pizza delen in §|🥞 Pannenkoeken eten in §|🍟 Friet halen in §|🛍️ Rondstruinen in § en iets kleins kopen|🍰 Een gebakje delen in §|🥪 Een lunch voor twee in §|🍩 Iets zoets proeven in §|🌷 Een bloemetje kopen voor elkaar in §|🍿 Snacks halen in § voor thuis|🥙 Shoarma of kebab eten in §|🥧 Appeltaart eten in §|🍫 Chocolade of snoep kopen in §|🌭 Een snack proberen bij een kraam of snackbar in §|🛒 Een nieuw product proberen uit de supermarkt in §|🥨 Een lekker broodje proeven in §");
+const TMC=P("🧋 Bubble tea of iets lekkers drinken in §|📚 Een boekwinkel of bibliotheek bezoeken in §|🏪 Een kringloopwinkel bezoeken in §|🍜 Aziatisch eten halen in §|🎯 Een café met spelletjes zoeken in §|🧃 Een verse jus of smoothie halen in §|🥤 Een milkshake of verse limonade halen in §");
+const fillM=[...TMT.flatMap(t=>X(t,TOWN)),...TMC.flatMap(t=>X(t,CITY))];
+const coreM=[
+  ...P("🏊 Zwemmen in het Golfbad|🖼️ Museum Jan Cunen bezoeken|🥏 Discgolf spelen|⛳ Midgetgolf spelen|🎳 Bowlen|🎱 Poolen|🎯 Darten in een café|🧗 Klimmen in een klimhal|🎮 Een uurtje arcade|🎠 Naar de kermis|🏪 Een weekmarkt bezoeken|🍓 Fruit plukken bij een boerderij|🧀 Kaas proeven bij een kaasboer|🍯 Een bezoek aan een imker|🏹 Een uurtje boogschieten|📻 Platen snuffelen bij een platenzaak|🕹️ Een uurtje flipperen|🚆 Met de trein naar een stationsstadje|🍫 Chocolade proeven bij een chocolatier|🎬 Een film in de bioscoop op een kortingsdag"),
+  ...X("🍝 Een diner koken voor €10: §","lasagne|stamppot|tacos|curry|nasi goreng|bami|hutspot|pasta pesto|wraps|pasta carbonara|chili con carne|shakshuka|gehaktballen met puree|pasta arrabbiata|ovenschotel|soep met brood|quiche|pad thai|burrito's|macaroni met ham en kaas|pasta bolognese|zuurkool met worst|pitabroodjes|loempia's|saté met rijst|spaghetti met gehaktballetjes|bloemkoolgratin|erwtensoep|risotto|knolselderijsoep"),
+  ...X("🧴 Zelf maken: §","zeep|kaarsen|ijs|limonade|brood|verse pasta|pizzadeeg|hummus|granola|jam|badbommen|lipbalsem|ijsthee|chips uit de oven|sushi|dumplings|pesto|kruidenboter|appelmoes|chocoladesaus|kaarten|een boekenlegger|een sleutelhanger|armbandjes|een fotolijst|een plantenhanger|een vogelvoederhuisje|een windgong|een mobiel van papier|een terrarium in een pot"),
+  ...X("🎲 Een nieuw spel kopen en spelen: §","een kaartspel|een puzzel van 1000 stukjes|een dobbelspel|een quizspel|een woordspel|een coöperatief spel|een tekenspel|een bluffspel|een reisspel|een behendigheidsspel|een raadspel|dominostenen|een Mahjong-set|een schaakbord|een geheugenspel"),
+  ...X("🏆 Een wedstrijd thuis: §","wie bakt de mooiste taart|wie tekent de beste kat|wie bouwt de hoogste toren|wie maakt het beste drankje zonder alcohol|wie kookt het lekkerst met drie ingrediënten|wie vouwt het beste vliegtuigje|wie bouwt het sterkste kaartenhuis|wie vindt het eerst iets in huis|wie maakt de leukste selfie|wie maakt de mooiste cupcake|wie bedenkt de beste quizvraag|wie gooit het verst met een propje|wie schildert de mooiste steen|wie legt de puzzel het snelst|wie maakt de grappigste foto van een voorwerp"),
+  ...X("🍿 Filmavond met §","zelfgemaakte popcorn|nacho's met kaas|zoete en zoute popcorn|stroopwafels|tosti's|pizza uit de oven|chips en dip|fruit en chocolade|een kaasplankje|friet uit de oven|ijs|marshmallows|wraps|brownies|warme chocolademelk"),
+  ...X("🥤 Een drankje maken: §","mojito zonder alcohol|ijsthee met munt|smoothie van seizoensfruit|warme chocolademelk met slagroom|gemberlimonade|aardbeienmilkshake|pink lemonade|koffie met kaneel|chai latte|watermeloensap|verse muntthee|appelsap met kaneel|een mocktail van sinaasappel|bananenshake|ijskoffie"),
+  ...X("🧁 Samen bakken: §","appeltaart|brownies|scones|cupcakes|stroopwafels|speculaas|havermoutkoekjes|banaanbrood|muffins|worstenbroodjes|appelflappen|wafels|focaccia|zachte pretzels|kaneelbroodjes|cheesecake|citroentaart|oliebollen|poffertjes|mini-pizza's|donuts uit de oven|chocoladekoekjes|rijstevlaai|bladerdeeghapjes|een verjaardagstaart"),
+  ...X("🎨 Een creatief project: §","een schilderij op doek|een tekening met stiften|een collage uit tijdschriften|een kaart voor iemand|een fotoboek|een stripverhaal|klei boetseren|sieraden maken|een mozaïek|een fotocollage|een bordspel verzinnen|stenen schilderen|een kussenhoes versieren|een poster ontwerpen|een eigen kaartspel tekenen"),
+  ...Y("🎬 Filmavond: § met ¶","een romantische film|een grappige film|een spannende film|een animatiefilm|een klassieker|een buitenlandse film|een oude favoriet|een fantasyfilm|een sciencefictionfilm|een musical|een waargebeurde film|een kerstfilm|een jeugdfilm|een documentaire|een filmmarathon van één regisseur","zelfgemaakte popcorn|nacho's met kaas|zoete en zoute popcorn|stroopwafels|tosti's|pizza uit de oven|chips en dip|fruit en chocolade|een kaasplankje|friet uit de oven|ijs|marshmallows|wraps|brownies|warme chocolademelk"),
+  ...Y("🍝 Een diner koken voor €10: § met ¶ toe","lasagne|stamppot|tacos|curry|nasi goreng|pasta pesto|wraps|chili con carne|quiche|pad thai|burrito's|pasta bolognese|pitabroodjes|loempia's|risotto","pannenkoeken|ijs|vers fruit|brownies|rijstepap|yoghurt met honing|chocolademousse|appelcrumble|vla|een gebakje|wafels|poffertjes"),
+  ...Y("§ ¶","🖍️ Een kaart maken|🧶 Iets breien|📖 Een fotoboek maken|🕯️ Een kaars maken|🧼 Zeep maken|🪴 Een plantenhanger maken|🔑 Een sleutelhanger maken|💌 Een brief schrijven|🍪 Koekjes bakken|🎁 Een cadeau inpakken","voor elkaar|voor een vriend|voor je ouders|voor je buren|voor een collega|voor opa en oma|voor een verjaardag|voor een nieuwe baby|voor een housewarming|om op te hangen"),
+  ...Y("🧺 Een picknick met § bij ¶","broodjes en fruit|wraps en hummus|pastasalade|tosti's in een thermos|pannenkoekrolletjes|komkommer en dip|zelfgebakken cake|een kaasplankje|stokbrood met kruidenboter|ijsthee en koekjes|fruitsalade|soep uit een thermos",NAT),
+  ...Y("🍳 Een brunch thuis: § met ¶","roerei|omelet|pannenkoeken|wafels|French toast|avocado toast|shakshuka|eiersalade op toast|yoghurt met granola|bagels|tosti's|poffertjes","verse jus|koffie met kaneel|warme chocolademelk|thee|fruitsalade|een smoothie|croissants|bacon|tomaatjes|kaas en vleeswaren|jam en honing|een yoghurtdip|verse kruiden|ijskoffie|chai latte"),
+  ...Y("🎲 Een potje §, met ¶ erbij","pesten|Uno|dammen|schaken|Yahtzee|Memory|Pictionary|Rummikub|Scrabble|Jenga|Kwartetten|Mastermind|Vier op een rij|Boter-kaas-en-eieren|Klaverjassen|Sjoelen|Domino|Twister|Galgje|Mens erger je niet","nacho's|popcorn|pizza|chips|kaas en worst|tosti's|fruit|bonbons|stroopwafels|friet uit de oven|koekjes|warme chocolademelk|thee|ijs|brownies")
+];
+
+// ---- Up to 20 euro ----
+// Named venues were checked against regional "dagje uit" listings (Oss, Uden, Veghel, Den Bosch, Eindhoven).
+// Generic place combinations are limited to cities where that kind of place certainly exists.
+const COMMON="Italiaans|Grieks|Turks|Indisch|Chinees|Japans|Thais|Mexicaans|Spaans|Surinaams|Indonesisch|Amerikaans|Libanees|Vegetarisch|Vis|Steak|Tapas|Sushi";
+const RARE="Koreaans|Vietnamees|Marokkaans|Portugees|Frans|Argentijns|Belgisch|Ramen|Midden-Oosters|Caribisch|Duits|Georgisch";
+const ACTG="🖼️ Een museum bezoeken|🚶 Een stadswandeling met gids doen|🎭 Een voorstelling bezoeken|🎤 Een concert bijwonen|😂 Een stand-upavond bijwonen|🍿 Een bioscoopfilm kijken|🏊 Zwemmen in een binnenbad|🧖 Een wellnessmiddag boeken|🔐 Een escape room spelen|🔫 Lasergamen|🎳 Bowlen|🧗 Boulderen|🖌️ Een kunstgalerie bezoeken|🎬 Een filmhuis bezoeken|🎱 Biljarten|🥽 Virtual reality spelen|💃 Een proefles dansen volgen|🧘 Een proefles yoga volgen|⚽ Een sportwedstrijd bekijken|🎷 Een jazzavond bijwonen|🎻 Een klassiek concert bijwonen|🎮 Een gamehal bezoeken|🎾 Squashen|🏸 Padellen|🏓 Tafeltennissen|🧩 Een stadsspel spelen";
+const WRK="pottenbak|schilder|kook|kaarsen|bloemschik|chocolade|taart|broodbak|houtbewerking|naai|teken|fotografie|cocktail|sushi|pasta|latte-art|sieraden|keramiek|bierbrouw|wijn|gitaar|dans|zang|mozaïek|glas|leer|macramé|handlettering|kalligrafie|kaas";
+const fillL=[...Y("🍽️ § eten in ¶",COMMON,CITY),...Y("🍽️ § eten in ¶",RARE,BIGC),...Y("§ in ¶",ACTG,BIGC),...Y("🎨 Een §workshop in ¶",WRK,BIGC)];
+const coreL=[
+  ...P("⛷️ Skiën of snowboarden bij Alpine World Oss|🍿 Een film kijken bij Kinepolis Oss|🎭 Een voorstelling zien bij Theater De Lievekamp in Oss|🎳 Bowlen bij Rusheuvel in Oss|🧩 Een buitenescape door het centrum van Oss spelen|🖼️ Museum Jan Cunen in Oss bezoeken|🏊 Zwemmen in het Golfbad in Oss|🎳 Bowlen bij Rainbow Centre in Nistelrode|🔐 Een escape room spelen in Nistelrode|🎭 Een voorstelling zien bij Openluchttheater Hoessenbosch in Berghem|🎳 Bowlen bij Dollie's in Uden|🔐 Een escape room spelen bij Escape Room Uden|🏎️ Karten bij Kartbaan Uden|🔫 Lasergamen bij Kartbaan Uden|🧗 Klimmen bij Klimpark Uden|🎭 Een voorstelling zien bij Theater Markant in Uden|🍿 Een film kijken bij Take Ten in Uden|🖼️ Museum Krona in Uden bezoeken|🚜 Plattelandsmuseum Duinhove in Uden bezoeken|🏊 Zwemmen bij Ezzy's in Uden|🎨 Een schilderworkshop volgen in Uden|🤸 Springen bij You Jump in Veghel|🔐 Een escape room spelen bij Escape Room Veghel|🎭 Een voorstelling zien bij Theater De Blauwe Kei in Veghel|🧖 Zwemmen en naar de sauna bij De Beemd in Veghel|🍫 The Chocolate Factory in Veghel bezoeken|🍽️ Proeven bij de Proeffabriek in Veghel|🔐 Een escape room spelen in Mill|🏰 Kasteel Heeswijk bezoeken|🎳 Bowlen bij Bowlingcentrum Maaspoort in Den Bosch|🎳 Bowlen bij Sportiom in Den Bosch|⛸️ Schaatsen bij Sportiom in Den Bosch|⛳ Overdekt midgetgolfen bij Sportiom in Den Bosch|🖼️ Het Jheronimus Bosch Art Center in Den Bosch bezoeken|🏛️ Museum Kruithuis in Den Bosch bezoeken|🏺 Aardewerk beschilderen bij Kop & Schotel in Den Bosch|🎨 Een workshop volgen bij Werk aan de Winkel in Den Bosch|🎭 Een voorstelling zien bij Theater aan de Parade in Den Bosch|🍿 Een film kijken bij Kinepolis Den Bosch|🔐 Een escape room spelen bij Breakout Room Den Bosch|🧭 Een buitenescape door Den Bosch spelen|🚤 Een rondvaart over de Binnendieze in Den Bosch|🎭 Een voorstelling zien bij Theater Perron-3 in Rosmalen|🎭 Een voorstelling zien bij Schouwburg Cuijk|🎳 Bowlen bij Vier Hoog in Eindhoven|🔫 Lasergamen bij Vier Hoog in Eindhoven|🥽 Virtual reality spelen bij Enversed in Eindhoven|🔐 Een escape room spelen bij Xitroom in Eindhoven|🧗 Het Viking Adventure Klimpark in Nijmegen bezoeken|🐱 Een workshop bij Kattencafé Balthazar in Nijmegen|🎳 Bowlen bij Bowling Centrum Tiel"),
+  ...P("🏰 GeoFort bezoeken|🎯 Paintballen|🤸 Een trampolinepark bezoeken|🍿 Naar de bioscoop met popcorn|🧖 Een middag naar de sauna|🏺 Een pottenbakworkshop|🍺 Een bierproeverij|😂 Een cabaretavond|🚤 Een rondvaart in Den Bosch|🖼️ Het Noordbrabants Museum in Den Bosch bezoeken|🛶 Kanovaren op de Maas|🌌 Een sterrenwacht bezoeken|⚽ Een wedstrijd van TOP Oss bekijken|🌳 Een natuurgids-excursie in de Maashorst|🦉 Een uilenwandeling met gids|🕺 Een danscursus|🪩 Een avond uit dansen|🏇 Een paardrijles|🎣 Een dag vissen met een vergunning|🥋 Een proefles vechtsport|🍻 Een rondleiding bij een brouwerij"),
+  ...X("🎁 Een cadeautje voor elkaar kopen: §","een boek|een plant|een mooie mok|een sieraad|een parfum|een fotolijst|een kussen|een bordspel|een kaarsenset|een pyjama|een sjaal|een knuffel|een dagboek|een kookboek|een puzzel|een plaat die de ander graag wil|een theeset|een mooie plantenpot|een fotoboek|een pakket lekkernijen"),
+  ...Y("🍿 Een film kijken bij ¶ met §","popcorn|een etentje vooraf|een wandeling na afloop|een ijsje na afloop|een drankje na afloop|een film die je zelf niet zou kiezen|een romantische film|een grappige film|een spannende film|een animatiefilm|een klassieker|een documentaire","Kinepolis Oss|Kinepolis Den Bosch|Take Ten in Uden"),
+  ...Y("🎭 Een voorstelling bij ¶: §","cabaret|toneel|muziektheater|dans|stand-upcomedy|een concert|een musical|een familievoorstelling|een try-out|een voorstelling die jullie nog nooit zagen","Theater De Lievekamp in Oss|Theater Markant in Uden|Theater De Blauwe Kei in Veghel|Schouwburg Cuijk|Theater aan de Parade in Den Bosch|Theater Perron-3 in Rosmalen"),
+  ...Y("🎳 Bowlen bij ¶ met §","een drankje erna|een snack erbij|een weddenschap|een teamwedstrijd met vrienden|een toernooitje van drie rondes|de verliezer betaalt|je niet-werpende hand|een thema-outfit|op een doordeweekse middag|op een zondagmiddag","Rusheuvel in Oss|Rainbow Centre in Nistelrode|Dollie's in Uden|Maaspoort in Den Bosch|Sportiom in Den Bosch|Vier Hoog in Eindhoven|Bowling Centrum Tiel"),
+  ...Y("🔐 Een escape room spelen bij ¶ §","met z'n tweeën|met een ander stel|met vrienden|en daarna iets eten|en daarna een drankje|op een doordeweekse avond|als date|met een weddenschap|in een thema dat je nog niet kende|en proberen sneller te zijn dan de rest","Escape Room Uden|Escape Room Veghel|Escape Room Mill|Escape Room Nistelrode|Breakout Room Den Bosch|Xitroom in Eindhoven"),
+  ...Y("🍽️ Een driegangendiner thuis: § met ¶ toe","biefstuk met friet|zalm uit de oven|risotto met paddenstoelen|pasta met garnalen|kip in champignonroomsaus|gevulde kipfilet|spareribs uit de oven|zeebaars|vegetarische wellington|gevulde aubergine|pasta met truffelolie|tarte flambée|lasagne met spinazie|stoofvlees|saté met pindasaus","tiramisu|chocoladefondant|crème brûlée|panna cotta|ijs met warme kersen|appeltaartjes|cheesecake|fruit met slagroom|mousse au chocolat|pavlova|een kaasplankje|affogato"),
+  ...Y("🍷 Een thuisproeverij: § met ¶","kaas|wijn|chocolade|bier|thee|koffie|olijven|ijs|honing|jam","hapjes uit de buurt|een quiz erbij|een scorekaart|kaarslicht|muziek uit dat land|een blinde proef|een prijsje voor de winnaar|een thema-avond"),
+  ...Y("🧖 Een wellness-avond thuis: § met ¶","een gezichtsmasker|een voetenbad|een massage|een bad met kaarsen|een peeling|een theeceremonie|een manicure|een haarmasker","rustige muziek|kaarsen|een film erbij|verse muntthee|een fruitbord|etherische olie|zachte badjassen|een playlist|geen telefoon|een lekker toetje|een boek|een dekentje")
+];
+
+const D={g:build(coreG,fillG),m:build(coreM,fillM),l:build(coreL,fillL)};
+const L={g:"Gratis",m:"€10 pp",l:"€20 pp"},C={g:"var(--g)",m:"var(--m)",l:"var(--l)"};
+// Shuffle bag: every idea shows up once before any idea repeats.
+const bag={};let last=null,k=null;
+function draw(){
+  if(!bag[k]||!bag[k].length){
+    const a=D[k].slice();
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+    if(last&&a[a.length-1]===last)[a[0],a[a.length-1]]=[a[a.length-1],a[0]];
+    bag[k]=a;
+  }
+  return last=bag[k].pop();
+}
+const out=document.getElementById("out"),btns=[...document.querySelectorAll(".b button")];
+function show(){
+  const t=draw(),i=t.indexOf(" ");
+  btns.forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===k));
+  out.innerHTML='<div class="idea"><span class="chip" style="background:'+C[k]+'">'+L[k]+'</span><div class="big"></div><h2></h2><button class="again" type="button">Nog een idee</button></div>';
+  out.querySelector(".big").textContent=t.slice(0,i);
+  out.querySelector("h2").textContent=t.slice(i+1);
+  out.querySelector(".again").onclick=show;
+  out.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+btns.forEach(b=>b.onclick=()=>{k=b.dataset.k;show()});
+</script>
+</body>
+</html>
